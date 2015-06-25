@@ -1,4 +1,5 @@
 from bitstring import BitArray
+from math import log
 
 class StateArray:
     bits = 0
@@ -89,4 +90,25 @@ def chi(a):
                 x2 = a.bit((x+2)%5, y, z)
                 retA.setBit(x,y,z, a.bit(x, y, z) ^ (nx1 and x2))
     return retA 
-    
+
+def rc(t):
+    if t % 255 == 0:
+        return True
+    r = BitArray('0b10000000')
+    for i in range(1, t%255 + 1):
+        r.prepend('0b0')
+        r[0] = (r[0] + r[8]) %2
+        r[4] = (r[4] + r[8]) %2
+        r[5] = (r[5] + r[8]) %2
+        r[6] = (r[6] + r[8]) %2
+        r = r[:8]
+    return r[0]
+
+def iota(a, ir):
+    retA = a.copy()
+    RC = BitArray(a.w)
+    for j in range(int(log(a.w, 2))+1):
+        RC[2**j-1] = rc(j+7*ir)
+    for z in range(a.w):
+        retA.setBit(0,0,z, retA.bit(0,0,z) ^ RC[z])
+    return retA

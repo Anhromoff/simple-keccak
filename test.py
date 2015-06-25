@@ -56,5 +56,52 @@ class TestStateArray(unittest.TestCase):
             val = (not a.bit(1,y,z)) and (a.bit(2,y,z))
             self.assertEqual(at.bit(0,y,z), a.bit(0,y,z) ^ val)
 
+    def test_rc(self):
+        #Taken from:
+        # http://keccak.noekeon.org/specs_summary.html
+        RC = []
+        RC.append('0x0000000000000001')  
+        RC.append('0x0000000000008082')  
+        RC.append('0x800000000000808A')  
+        RC.append('0x8000000080008000')  
+        RC.append('0x000000000000808B')  
+        RC.append('0x0000000080000001')  
+        RC.append('0x8000000080008081')  
+        RC.append('0x8000000000008009')  
+        RC.append('0x000000000000008A')  
+        RC.append('0x0000000000000088')  
+        RC.append('0x0000000080008009')  
+        RC.append('0x000000008000000A')  
+        RC.append('0x000000008000808B') 
+        RC.append('0x800000000000008B') 
+        RC.append('0x8000000000008089') 
+        RC.append('0x8000000000008003') 
+        RC.append('0x8000000000008002') 
+        RC.append('0x8000000000000080') 
+        RC.append('0x000000000000800A') 
+        RC.append('0x800000008000000A') 
+        RC.append('0x8000000080008081') 
+        RC.append('0x8000000000008080') 
+        RC.append('0x0000000080000001') 
+        RC.append('0x8000000080008008') 
+        self.assertEqual(len(RC), 24)
+    
+        for ir in range(24):
+            rcarray = BitArray(64)
+            for j in range(7):
+                rcarray[2**j-1] = rc(j+7*ir)
+            rcarray.reverse()
+            self.assertEqual(rcarray, RC[ir])
+    
+    def test_iota(self):
+        a = StateArray(initialstate)
+        at = iota(a,0)
+        
+        #iota should NOT affect any lane beyond 0,0
+        for x, y in itertools.product(range(5), range(5)):
+            if x != 0 or y != 0:
+                self.assertEqual(at.lane(x,y), a.lane(x,y))
+
+    
 if __name__ == '__main__':
     unittest.main()
