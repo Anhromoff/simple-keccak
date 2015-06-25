@@ -12,13 +12,19 @@ class StateArray:
         assert x < 5
         assert y < 5
         assert z < self.w
-        return self.bits[self.w*(5*y+z) + z]
+        return self.bits[self.w*(5*y+x) + z]
     
     def setBit(self, x, y, z, val):
         assert x < 5
         assert y < 5
         assert z < self.w
-        self.bits[self.w*(5*y+z) + z] = val
+        self.bits[self.w*(5*y+x) + z] = val
+
+    def lane(self, x, y):
+        assert x < 5
+        assert y < 5
+        offset = self.w*(5*y+x)
+        return self.bits[offset : offset+self.w]
 
     def copy(self):
         return StateArray(self.bits[:])
@@ -49,3 +55,13 @@ def theta(a):
                 retA.setBit(x, y, z, a.bit(x, y, z) ^ D[x][z])
 
     return retA 
+
+def ro(a):
+    retA = a.copy()
+    x, y = (1, 0)
+    for t in range(0, 23):
+        #print x, y, ((t+1)*(t+2)/2) 
+        for z in range(0, a.w):
+            retA.setBit(x,y,z, a.bit(x, y, (z-(t+1)*(t+2)/2) % a.w))
+        x, y = (y, (2*x + 3*y) % 5)
+    return retA

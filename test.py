@@ -1,5 +1,6 @@
 from StateArray import *
 import unittest
+import pdb
 
 #50 bits
 initialstate = BitArray('0x1bcd3842bd2ddc23')
@@ -26,6 +27,18 @@ class TestStateArray(unittest.TestCase):
            ^ a.bit(x+1,4,z-1) 
         expected = a.bit(x,y,z) ^ c1 ^ c2
         self.assertEqual(at.bit(x,y,z), expected)
+
+    def test_ro(self):
+        a = StateArray(initialstate)
+        at = ro(a)
+
+        x, y, offset = 3, 2, 153
+        for z in range(at.w):
+            self.assertEqual(at.bit(x,y,z), a.bit(x,y,(z+offset)%at.w))
+
+        x, y, offset = 4, 1, 276
+        for z in range(at.w):
+            self.assertEqual(at.bit(x,y,z), a.bit(x,y,(z+offset)%at.w))
 
 if __name__ == '__main__':
     unittest.main()
