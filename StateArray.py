@@ -46,4 +46,6 @@ def theta(a):
     for x in range(5):
         for y in range(5):
             for z in range(a.w):
-                retA.setBit(x, y, z, a.bit(x, y, z) ^ D[x][z]) 
+                retA.setBit(x, y, z, a.bit(x, y, z) ^ D[x][z])
+
+    return retA 
