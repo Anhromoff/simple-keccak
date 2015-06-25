@@ -6,6 +6,34 @@ import itertools
 #50 bits
 initialstate = BitArray('0x1bcd3842bd2ddc23')
 initialstate = initialstate[:50]
+        
+#Taken from:
+# http://keccak.noekeon.org/specs_summary.html
+RC = []
+RC.append('0x0000000000000001')  
+RC.append('0x0000000000008082')  
+RC.append('0x800000000000808A')  
+RC.append('0x8000000080008000')  
+RC.append('0x000000000000808B')  
+RC.append('0x0000000080000001')  
+RC.append('0x8000000080008081')  
+RC.append('0x8000000000008009')  
+RC.append('0x000000000000008A')  
+RC.append('0x0000000000000088')  
+RC.append('0x0000000080008009')  
+RC.append('0x000000008000000A')  
+RC.append('0x000000008000808B') 
+RC.append('0x800000000000008B') 
+RC.append('0x8000000000008089') 
+RC.append('0x8000000000008003') 
+RC.append('0x8000000000008002') 
+RC.append('0x8000000000000080') 
+RC.append('0x000000000000800A') 
+RC.append('0x800000008000000A') 
+RC.append('0x8000000080008081') 
+RC.append('0x8000000000008080') 
+RC.append('0x0000000080000001') 
+RC.append('0x8000000080008008') 
 
 
 class TestStateArray(unittest.TestCase):
@@ -57,33 +85,6 @@ class TestStateArray(unittest.TestCase):
             self.assertEqual(at.bit(0,y,z), a.bit(0,y,z) ^ val)
 
     def test_rc(self):
-        #Taken from:
-        # http://keccak.noekeon.org/specs_summary.html
-        RC = []
-        RC.append('0x0000000000000001')  
-        RC.append('0x0000000000008082')  
-        RC.append('0x800000000000808A')  
-        RC.append('0x8000000080008000')  
-        RC.append('0x000000000000808B')  
-        RC.append('0x0000000080000001')  
-        RC.append('0x8000000080008081')  
-        RC.append('0x8000000000008009')  
-        RC.append('0x000000000000008A')  
-        RC.append('0x0000000000000088')  
-        RC.append('0x0000000080008009')  
-        RC.append('0x000000008000000A')  
-        RC.append('0x000000008000808B') 
-        RC.append('0x800000000000008B') 
-        RC.append('0x8000000000008089') 
-        RC.append('0x8000000000008003') 
-        RC.append('0x8000000000008002') 
-        RC.append('0x8000000000000080') 
-        RC.append('0x000000000000800A') 
-        RC.append('0x800000008000000A') 
-        RC.append('0x8000000080008081') 
-        RC.append('0x8000000000008080') 
-        RC.append('0x0000000080000001') 
-        RC.append('0x8000000080008008') 
         self.assertEqual(len(RC), 24)
     
         for ir in range(24):
@@ -95,13 +96,19 @@ class TestStateArray(unittest.TestCase):
     
     def test_iota(self):
         a = StateArray(initialstate)
-        at = iota(a,0)
         
         #iota should NOT affect any lane beyond 0,0
+        at = iota(a,0)
         for x, y in itertools.product(range(5), range(5)):
             if x != 0 or y != 0:
                 self.assertEqual(at.lane(x,y), a.lane(x,y))
 
+        for ir in range(24):
+            at = iota(a, ir)
+            truncRC = BitArray(RC[ir])
+            truncRC.reverse()
+            truncRC = truncRC[:a.w]
+            self.assertEqual(at.lane(0,0), a.lane(0,0) ^ truncRC)
     
 if __name__ == '__main__':
     unittest.main()
