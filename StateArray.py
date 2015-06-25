@@ -26,6 +26,12 @@ class StateArray:
         offset = self.w*(5*y+x)
         return self.bits[offset : offset+self.w]
 
+    def row(self, y, z):
+        r = BitArray()
+        for x in range(5):
+            r += self.bit(x,y,z)
+        return r
+
     def copy(self):
         return StateArray(self.bits[:])
 
@@ -65,3 +71,22 @@ def ro(a):
             retA.setBit(x,y,z, a.bit(x, y, (z-(t+1)*(t+2)/2) % a.w))
         x, y = (y, (2*x + 3*y) % 5)
     return retA
+
+def pi(a):
+    retA = a.copy()
+    for x in range(5):
+        for y in range(5):
+            for z in range(a.w):
+                retA.setBit(x,y,z, a.bit((x+3*y)%5, x, z))
+    return retA
+
+def chi(a):
+    retA = a.copy()
+    for x in range(5):
+        for y in range(5):
+            for z in range(a.w):
+                nx1 = not a.bit((x+1)%5, y, z)
+                x2 = a.bit((x+2)%5, y, z)
+                retA.setBit(x,y,z, a.bit(x, y, z) ^ (nx1 and x2))
+    return retA 
+    

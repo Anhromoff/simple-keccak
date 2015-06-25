@@ -1,6 +1,7 @@
 from StateArray import *
 import unittest
 import pdb
+import itertools
 
 #50 bits
 initialstate = BitArray('0x1bcd3842bd2ddc23')
@@ -39,6 +40,21 @@ class TestStateArray(unittest.TestCase):
         x, y, offset = 4, 1, 276
         for z in range(at.w):
             self.assertEqual(at.bit(x,y,z), a.bit(x,y,(z+offset)%at.w))
+
+    def test_pi(self):
+        a = StateArray(initialstate)
+        at = pi(a)
+        for x, y in itertools.product(range(5), range(5)):
+            self.assertEqual(at.lane(x,y), a.lane((x+3*y)%5, x))
+
+    def test_chi(self):
+        a = StateArray(initialstate)
+        at = chi(a)
+        
+        #Checking x = 0 for every row
+        for y, z in itertools.product(range(5), range(a.w)):
+            val = (not a.bit(1,y,z)) and (a.bit(2,y,z))
+            self.assertEqual(at.bit(0,y,z), a.bit(0,y,z) ^ val)
 
 if __name__ == '__main__':
     unittest.main()
