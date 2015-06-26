@@ -1,6 +1,5 @@
 from StateArray import *
 from math import log
-import pdb
 
 def Rnd(A, ir):
     return iota(chi(pi(ro(theta(A)))),ir)
@@ -17,7 +16,6 @@ class kec:
         l = int(log(a.w,2))
         i = 0
         for ir in range(2*l+12-self.nr, 2*l+12):
-            i += 1
             a = Rnd(a, ir)
         return a.bits
 
@@ -33,6 +31,19 @@ def Keccak_f(b):
 def Sponge(f, pad, r):
     def s(M, d):
         p = BitArray(M)
+        byte = []
+        trail = BitArray()
+        if len(p) % 8 != 0:
+            parts = int(len(p)/8)
+            trail = p[parts*8:]
+        for i in range(int(len(p)/8)):
+            b = p[i*8:(i+1)*8]
+            b.reverse()
+            byte.append(b)
+        trail.reverse()
+        byte.append(trail)
+        p = BitArray().join(byte)
+        
         p.append(pad(r, len(p)))
         c = f.b-r
         assert(len(p)%r == 0)
@@ -48,7 +59,15 @@ def Sponge(f, pad, r):
         Z = s[:r]
         while d > len(Z):
             Z += f(S)
-        return Z[:d]
+        Z = Z[:d]
+        
+        byte = []
+        for i in range(int(len(Z)/8)):
+            b = Z[i*8:(i+1)*8]
+            b.reverse()
+            byte.append(b)
+        Z = BitArray().join(byte)
+        return Z
 
     return s
 

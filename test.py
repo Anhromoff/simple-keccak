@@ -122,11 +122,24 @@ class TestKeccack(unittest.TestCase):
             for m in range(100):
                 pad = pad101(x,m)
                 self.assertEqual((m+len(pad))%x, 0)
-        #pdb.set_trace()
-        print(Keccak(448)('0b01', 224))
-        print(Keccak(448)('', 224))
-   
-        Keccak_f(1600)(BitArray(1600))
 
+    def test_null_string(self):
+        k244 = Keccak(448)("", 224)
+        self.assertEqual(k244, "0xf71837502ba8e10837bdd8d365adb85591895602fc552b48b7390abd")
+        
+        k256 = Keccak(512)("", 256)
+        self.assertEqual(k256, "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad804"
+                             + "5d85a470")
+        
+        k384 = Keccak(768)("", 384)
+        self.assertEqual(k384, "0x2c23146a63a29acf99e73b88f8c24eaa7dc60aa771780ccc006afbfa"
+                             + "8fe2479b2dd2b21362337441ac12b515911957ff") 
+        
+        k512 = Keccak(1024)("", 512)
+        self.assertEqual(k512, "0x0eab42de4c3ceb9235fc91acffe746b29c29a8c366b7c60e4e67c466"
+                             + "f36a4304c00fa9caf9d87976ba469bcbe06713b435f091ef2769fb160c"
+                             + "dab33d3670680e")
+
+    
 if __name__ == '__main__':
     unittest.main()
