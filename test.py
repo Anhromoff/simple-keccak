@@ -1,4 +1,5 @@
 from StateArray import *
+from Keccak import *
 import unittest
 import pdb
 import itertools
@@ -110,5 +111,13 @@ class TestStateArray(unittest.TestCase):
             truncRC = truncRC[:a.w]
             self.assertEqual(at.lane(0,0), a.lane(0,0) ^ truncRC)
     
+class TestKeccack(unittest.TestCase):
+
+    def test_pad101(self):
+        for x in range(1, 20):
+            for m in range(100):
+                pad = pad101(x,m)
+                self.assertEqual((m+len(pad))%x, 0)
+
 if __name__ == '__main__':
     unittest.main()
