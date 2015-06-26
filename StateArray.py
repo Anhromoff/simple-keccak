@@ -5,7 +5,7 @@ class StateArray:
     bits = 0
     w = 0
     def __init__(self, bits):
-        self.bits = BitArray(bits)
+        self.bits = BitArray(bits[:])
         assert len(self.bits) in [25, 50, 100, 200, 400, 800, 1600]
         self.w = len(self.bits)/25
     
@@ -66,7 +66,7 @@ def theta(a):
 def ro(a):
     retA = a.copy()
     x, y = (1, 0)
-    for t in range(0, 23):
+    for t in range(0, 24):
         #print x, y, ((t+1)*(t+2)/2) 
         for z in range(0, a.w):
             retA.setBit(x,y,z, a.bit(x, y, (z-(t+1)*(t+2)/2) % a.w))

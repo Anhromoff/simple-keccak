@@ -5,8 +5,8 @@ import pdb
 import itertools
 
 #50 bits
-initialstate = BitArray('0x1bcd3842bd2ddc23')
-initialstate = initialstate[:50]
+initialstate = BitArray('0x1bcd3842bd2ddc23')*20
+initialstate = initialstate[:200]
         
 #Taken from:
 # http://keccak.noekeon.org/specs_summary.html
@@ -62,13 +62,17 @@ class TestStateArray(unittest.TestCase):
         a = StateArray(initialstate)
         at = ro(a)
 
-        x, y, offset = 3, 2, 153
-        for z in range(at.w):
-            self.assertEqual(at.bit(x,y,z), a.bit(x,y,(z+offset)%at.w))
+        offsets = [[0, 36, 3, 105, 210],
+                   [1, 300, 10, 45, 66],
+                   [190, 6, 171, 15, 253],
+                   [28, 55, 153, 21, 120],
+                   [91, 276, 231, 136, 78]]
 
-        x, y, offset = 4, 1, 276
-        for z in range(at.w):
-            self.assertEqual(at.bit(x,y,z), a.bit(x,y,(z+offset)%at.w))
+        for x in range(5):
+            for y in range(5):
+                offset = offsets[x][y]
+                for z in range(a.w):
+                    self.assertEqual(a.bit(x,y,z), at.bit(x,y,(z+offset)%at.w))
 
     def test_pi(self):
         a = StateArray(initialstate)
@@ -118,6 +122,11 @@ class TestKeccack(unittest.TestCase):
             for m in range(100):
                 pad = pad101(x,m)
                 self.assertEqual((m+len(pad))%x, 0)
+        #pdb.set_trace()
+        print(Keccak(448)('0b01', 224))
+        print(Keccak(448)('', 224))
+   
+        Keccak_f(1600)(BitArray(1600))
 
 if __name__ == '__main__':
     unittest.main()
