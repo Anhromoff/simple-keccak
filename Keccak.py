@@ -40,7 +40,6 @@ def Sponge(f, pad, r):
             b = p[i*8:(i+1)*8]
             b.reverse()
             byte.append(b)
-        trail.reverse()
         byte.append(trail)
         p = BitArray().join(byte)
         
