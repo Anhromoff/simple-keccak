@@ -1,20 +1,24 @@
 from bitstring import BitArray
 from math import log
 
+# Classe definindo um state array
 class StateArray:
     bits = 0
     w = 0
+    # Construtor da classe, recebe um array de bits
     def __init__(self, bits):
         self.bits = BitArray(bits[:])
         assert len(self.bits) in [25, 50, 100, 200, 400, 800, 1600]
         self.w = len(self.bits)/25
     
+    # Retorna o bit (x,y,z) de acordo com a especificacao do NIST
     def bit(self, x, y, z):
         assert x < 5
         assert y < 5
         assert z < self.w
         return self.bits[self.w*(5*y+x) + z]
     
+    # Seta o bit (x,y,z) com val
     def setBit(self, x, y, z, val):
         assert x < 5
         assert y < 5
@@ -36,6 +40,7 @@ class StateArray:
     def copy(self):
         return StateArray(self.bits[:])
 
+# Step Mapping Theta
 def theta(a):
     retA = a.copy()
     C = []
@@ -63,16 +68,17 @@ def theta(a):
 
     return retA 
 
+# Step mapping Ro
 def ro(a):
     retA = a.copy()
     x, y = (1, 0)
     for t in range(0, 24):
-        #print x, y, ((t+1)*(t+2)/2) 
         for z in range(0, a.w):
             retA.setBit(x,y,z, a.bit(x, y, (z-(t+1)*(t+2)/2) % a.w))
         x, y = (y, (2*x + 3*y) % 5)
     return retA
 
+# Step mapping pi
 def pi(a):
     retA = a.copy()
     for x in range(5):
@@ -81,6 +87,7 @@ def pi(a):
                 retA.setBit(x,y,z, a.bit((x+3*y)%5, x, z))
     return retA
 
+# Step Mapping chi
 def chi(a):
     retA = a.copy()
     for x in range(5):
@@ -91,19 +98,23 @@ def chi(a):
                 retA.setBit(x,y,z, a.bit(x, y, z) ^ (nx1 and x2))
     return retA 
 
+# Funcao rc, necessaria para o step mapping iota
 def rc(t):
     if t % 255 == 0:
         return True
     r = BitArray('0b10000000')
     for i in range(1, t%255 + 1):
         r.prepend('0b0')
-        r[0] = (r[0] + r[8]) %2
-        r[4] = (r[4] + r[8]) %2
-        r[5] = (r[5] + r[8]) %2
-        r[6] = (r[6] + r[8]) %2
+        # A especificacao do NIST diz para fazer uma soma de bits.
+        # Essa operacao em um bit, eh exatamente equivalente ao XOR
+        r[0] = (r[0] ^ r[8])
+        r[4] = (r[4] ^ r[8])
+        r[5] = (r[5] ^ r[8])
+        r[6] = (r[6] ^ r[8])
         r = r[:8]
     return r[0]
 
+# Step mapping iota
 def iota(a, ir):
     retA = a.copy()
     RC = BitArray(a.w)

@@ -126,8 +126,6 @@ class TestKeccack(unittest.TestCase):
     def test_null_string(self):
         k244 = Keccak(448)("", 224)
         self.assertEqual(k244, "0xf71837502ba8e10837bdd8d365adb85591895602fc552b48b7390abd")
-        sha3foobar = Keccak(768)(BitArray(bytes="foobar") + BitArray('0b01'), 384)
-        self.assertEqual(sha3foobar, "0x0fa8abfbdaf924ad307b74dd2ed183b9a4a398891a2f6bac8fd2db7041b77f068580f9c6c66f699b496c2da1cbcc7ed8")
         
         k256 = Keccak(512)("", 256)
         self.assertEqual(k256, "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad804"
@@ -142,6 +140,9 @@ class TestKeccack(unittest.TestCase):
                              + "f36a4304c00fa9caf9d87976ba469bcbe06713b435f091ef2769fb160c"
                              + "dab33d3670680e")
 
+        sha3foobar = SHA3_384("foobar")
+        self.assertEqual(sha3foobar, "0x0fa8abfbdaf924ad307b74dd2ed183b9a4a398891a2f6bac8fd2db7041b77f068580f9c6c66f699b496c2da1cbcc7ed8")
+        
     
 if __name__ == '__main__':
     unittest.main()
