@@ -5,6 +5,13 @@ from math import log
 def Rnd(A, ir):
     return iota(chi(pi(ro(theta(A)))),ir)
 
+def printStateArray(a):
+    lanes = []
+    for x in range(5):
+        for y in range(5):
+            lanes.append(a.lane(x,y).hex)
+    print lanes
+
 # Classe que define uma instancia de Keccak-p
 # Ela pode ser construida passando os parametros b e nr,
 # e chamada com a string S (de tamanho b), conforme descrito
@@ -21,10 +28,13 @@ class Keccak_p:
 	#passo 1
         a = StateArray(s)
         l = int(log(a.w,2))
-        i = 0
+        i = 1
 	#passo 2
         for ir in range(2*l+12-self.nr, 2*l+12):
             a = Rnd(a, ir)
+            print "State array apos rodada %d" % i
+            printStateArray(a)
+            i += 1
 	#passo 3 e 4
         return a.bits
 
@@ -58,12 +68,16 @@ def Sponge(f, pad, r):
             byte.append(b)
         byte.append(trail)
         p = BitArray().join(byte)
-        
+       
+        print "String antes do padding:"
+        print BitArray(p).bin
         # Passo 1
         p.append(pad(r, len(p)))
+        print "String apos o padding:"
+        print BitArray(p).hex
         # Passo 2
-	assert(len(p)%r == 0)	
-	n = len(p)/r
+        assert(len(p)%r == 0)	
+        n = len(p)/r
         # Passo 3
         c = f.b-r
         
@@ -72,16 +86,27 @@ def Sponge(f, pad, r):
         for i in range(n):
             parts.append(p[i*r: (i+1)*r])
 
+        print "Entrada foi dividida em %d partes" % n
+
         # Passo 5
         s = BitArray(f.b)
         # Passo 6
+        print "Saida s antes de receber transformacoes:"
+        print s.hex
+        i = 0
         for part in parts:
             s = s ^ (part + BitArray(c))
+            print "S apos feito XOR com parte %d" % i
+            print s.hex
             s = f(s)
         # Passos 8, 9, 10
         Z = s[:r]
+        print "Iniciando parte de esmagamento"
+        print "Removidos r=%d bits da saida" % r
         while d > len(Z):
-            Z += f(S)
+            print "Ainda nao temos uma saida de tamanho r=%d, proxima etapa de esmagamento" % d
+            Z += f(s)
+        print "Nossa saida ja tem tamanho %d que eh maior ou igual ao que desejamos (d=%d). Truncando os %d primeiros bits" % (len(Z), d, d)
         Z = Z[:d]
         
         # Analogamente ao que foi feito antes, precisamos inverter
@@ -92,6 +117,8 @@ def Sponge(f, pad, r):
             b.reverse()
             byte.append(b)
         Z = BitArray().join(byte)
+        print "Saida final do algoritmo:"
+        print Z.hex
         return Z
 
     return s
